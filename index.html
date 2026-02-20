@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Health Check Card</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="./Icon/Group.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="health-card" aria-label="AI health check">
+        <header class="card-header">
+          <span class="app-badge" aria-hidden="true">
+            <img src="./Icon/Group.svg" alt="" id="healthCheckBadgeIcon" />
+          </span>
+          <h1>AI health check</h1>
+        </header>
+
+        <p class="lead">
+          We'll run a health check and find a few things you can fix. Let's make sure your
+          application is perfect before you submit.
+        </p>
+
+        <section class="progress-panel" id="progressPanel" aria-live="polite" hidden>
+          <div class="progress-panel-header">
+            <p class="progress-title" id="progressTitle">
+              <span id="progressLabel">Checks in progress...</span>
+              <span id="remainingCount">49 of 51</span>
+              <span id="remainingSuffix">remaining.</span>
+            </p>
+            <div class="progress-meta">
+              <span class="meta-clock" aria-hidden="true">
+                <img src="./Icon/Icon/General/Timer.svg" alt="" />
+              </span>
+              <p>Checks can take up to 2 minutes to complete.</p>
+              <span class="meta-spinner" aria-hidden="true"></span>
+              <button type="button" class="meta-stop" id="stopHealthCheckBtn" aria-label="Stop health check"></button>
+            </div>
+          </div>
+
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="51" aria-valuenow="2">
+            <span class="progress-fill progress-fill-success" id="successFill"></span>
+            <span class="progress-fill progress-fill-attention" id="attentionFill"></span>
+          </div>
+
+          <div class="progress-statuses">
+            <p class="progress-status">
+              <span class="status-dot is-success" aria-hidden="true"></span>
+              Successful
+              <b id="successCount">2</b>
+            </p>
+            <p class="progress-status" id="attentionStatus">
+              <span class="status-dot is-attention" aria-hidden="true"></span>
+              Requires attention
+              <b id="attentionCount">3</b>
+            </p>
+            <p class="latest-test-run" id="latestTestRun" hidden>Last checks run: --</p>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button type="button" id="runHealthCheckBtn">
+            <img src="./Icon/Icon/General/Restore.svg" alt="" aria-hidden="true" />
+            <span>Run health check</span>
+          </button>
+        </div>
+
+        <section class="attention-accordion" id="attentionAccordion" hidden>
+          <button
+            type="button"
+            class="attention-accordion-toggle"
+            id="attentionAccordionToggle"
+            aria-expanded="false"
+            aria-controls="attentionAccordionPanel"
+          >
+            <span class="attention-accordion-label">
+              <span class="status-dot is-attention" aria-hidden="true"></span>
+              <span id="attentionAccordionTitle">3 issues require your attention</span>
+            </span>
+            <span class="attention-accordion-chevron" aria-hidden="true">
+              <img src="./Icon/Icon/Action/Chevrons.svg" alt="" />
+            </span>
+          </button>
+          <div class="attention-accordion-panel" id="attentionAccordionPanel">
+            <div class="attention-accordion-panel-content">
+              <ol>
+                <li>
+                  <p>
+                    <strong>UTR Number:</strong> We cannot verify UTR numbers. Please make sure this is
+                    correct and not a personal UTR. If you are unsure, confirm it with your accountant.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong>Company Name:</strong> Remove "Ltd" or "Limited" from your company name so it
+                    is displayed correctly. You can update this in
+                    <a href="#">Settings &gt; Details.</a>
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong>Partnerships:</strong> Your pitch deck references partners and partnerships,
+                    especially on Slides 5, 17, and 22. Using "partner" or "partnership" can create issues
+                    with HMRC because "partnership" has a specific legal meaning in UK tax law. For SEIS
+                    and EIS submissions, avoid this wording unless it is legally accurate. HMRC also
+                    expects evidence of long-term growth with most core work done in-house. Extensive
+                    collaborations may affect how this is assessed. Here is a
+                    <a href="#">helpful video</a> with more detail.
+                  </p>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <footer class="disclaimer">
+          <div class="disclaimer-group">
+            <img class="info-icon" src="./Icon/Icon/Alert/Info.svg" alt="" aria-hidden="true" />
+            <p>
+              This AI-powered check is for guidance purpose only and may contain errors or
+              inaccuracies. It does not constitute legal, financial, or tax advice of any kind. See
+              our <a href="#">Terms of Service</a> for more information.
+            </p>
+          </div>
+        </footer>
+        <button type="button" class="reset-fab" id="resetDemoBtn" aria-label="Reset interactions" hidden>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 2v6h-6" />
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+            <path d="M3 22v-6h6" />
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+          </svg>
+        </button>
+      </section>
+    </main>
+    <script>
+      const runHealthCheckBtn = document.getElementById("runHealthCheckBtn");
+      const progressPanel = document.getElementById("progressPanel");
+      const successCount = document.getElementById("successCount");
+      const attentionStatus = document.getElementById("attentionStatus");
+      const attentionCount = document.getElementById("attentionCount");
+      const remainingCount = document.getElementById("remainingCount");
+      const remainingSuffix = document.getElementById("remainingSuffix");
+      const progressLabel = document.getElementById("progressLabel");
+      const stopHealthCheckBtn = document.getElementById("stopHealthCheckBtn");
+      const runHealthCheckLabel = runHealthCheckBtn.querySelector("span");
+      const appBadge = document.querySelector(".app-badge");
+      const healthCheckBadgeIcon = document.getElementById("healthCheckBadgeIcon");
+      const healthCard = document.querySelector(".health-card");
+      const actionsRow = document.querySelector(".actions");
+      const progressTrack = progressPanel.querySelector(".progress-track");
+      const latestTestRun = document.getElementById("latestTestRun");
+      const attentionAccordion = document.getElementById("attentionAccordion");
+      const attentionAccordionToggle = document.getElementById("attentionAccordionToggle");
+      const attentionAccordionPanel = document.getElementById("attentionAccordionPanel");
+      const attentionAccordionTitle = document.getElementById("attentionAccordionTitle");
+      const resetDemoBtn = document.getElementById("resetDemoBtn");
+      let progressAnimationFrame = null;
+      let isProgressAnimating = false;
+      let hasRunStarted = false;
+      const stageMotionDurationMs = 280;
+      const stageMotionEasing = "cubic-bezier(0.22, 1, 0.36, 1)";
+      const totalChecks = 51;
+      const requiredAttention = 3;
+      const checkIntervalMs = 180;
+      const badgeDefaultIcon = "./Icon/Group.svg";
+      const badgeRunningIcon = "./Gif/Lawrence Wink 110926.gif";
+      let runAttempts = 0;
+      let completed = 2;
+
+      const formatLatestTestRun = (date) => {
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        const hours24 = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const meridiem = hours24 >= 12 ? "pm" : "am";
+        const hours12 = hours24 % 12 || 12;
+        return `${day} ${month} ${year} ${hours12}:${minutes}${meridiem}`;
+      };
+
+      const setProgressSegments = (successPercent, attentionPercent) => {
+        const clampedSuccess = Math.max(0, Math.min(100, successPercent));
+        const clampedAttention = Math.max(0, Math.min(100 - clampedSuccess, attentionPercent));
+        const trackWidthPx = progressTrack.clientWidth;
+        const successWidthPx = Math.round((clampedSuccess / 100) * trackWidthPx);
+        const attentionWidthPx = Math.max(
+          0,
+          Math.min(trackWidthPx - successWidthPx, Math.round((clampedAttention / 100) * trackWidthPx)),
+        );
+        const totalFilledPx = successWidthPx + attentionWidthPx;
+        progressTrack.style.setProperty("--progress-success-width", `${successWidthPx}px`);
+        progressTrack.style.setProperty("--progress-attention-width", `${attentionWidthPx}px`);
+        progressTrack.style.setProperty("--progress-attention-offset", `${successWidthPx}px`);
+        progressTrack.style.setProperty("--progress-total-width", `${totalFilledPx}px`);
+        progressTrack.classList.toggle("has-attention-segment", attentionWidthPx > 0);
+      };
+
+      const cancelProgressAnimation = () => {
+        isProgressAnimating = false;
+        if (progressAnimationFrame !== null) {
+          cancelAnimationFrame(progressAnimationFrame);
+          progressAnimationFrame = null;
+        }
+      };
+
+      const clearCardStateClasses = () => {
+        healthCard.classList.remove("is-checking");
+        healthCard.classList.remove("is-stopped");
+        healthCard.classList.remove("is-complete");
+        healthCard.classList.remove("is-attention");
+      };
+
+      const setBadgeRunning = (isRunning) => {
+        healthCheckBadgeIcon.src = isRunning ? badgeRunningIcon : badgeDefaultIcon;
+        appBadge.classList.toggle("is-gif", isRunning);
+      };
+
+      const applyInitialUiState = ({ immediate = true } = {}) => {
+        clearCardStateClasses();
+        setSectionVisible(actionsRow, true, { immediate });
+        setSectionVisible(progressPanel, false, { immediate });
+        runHealthCheckBtn.disabled = false;
+        runHealthCheckBtn.classList.remove("is-rerun");
+        runHealthCheckLabel.textContent = "Run health check";
+        latestTestRun.textContent = "Last checks run: --";
+        latestTestRun.hidden = true;
+        setBadgeRunning(false);
+
+        progressLabel.textContent = "Checks in progress...";
+        remainingCount.hidden = false;
+        remainingSuffix.hidden = false;
+        remainingCount.textContent = `${totalChecks - completed} of ${totalChecks}`;
+        remainingSuffix.textContent = "remaining.";
+        progressTrack.setAttribute("aria-valuenow", String(completed));
+        setProgressSegments(0, 0);
+
+        successCount.textContent = "0";
+        attentionCount.textContent = String(requiredAttention);
+        attentionStatus.hidden = true;
+        attentionAccordionTitle.textContent = `${requiredAttention} issues require your attention`;
+        setSectionVisible(attentionAccordion, false, { immediate });
+        attentionAccordionToggle.setAttribute("aria-expanded", "false");
+        attentionAccordionPanel.style.height = "0px";
+        attentionAccordionPanel.setAttribute("aria-hidden", "true");
+      };
+
+      const clearStageMotionStyles = (element) => {
+        element.style.height = "";
+        element.style.opacity = "";
+        element.style.transform = "";
+        element.style.overflow = "";
+        element.style.transition = "";
+      };
+
+      const setSectionVisible = (element, isVisible, { immediate = false } = {}) => {
+        if (immediate) {
+          element.hidden = !isVisible;
+          clearStageMotionStyles(element);
+          return;
+        }
+
+        if (isVisible) {
+          if (!element.hidden) return;
+          element.hidden = false;
+          const expandedHeight = element.scrollHeight;
+          element.style.overflow = "hidden";
+          element.style.height = "0px";
+          element.style.opacity = "0";
+          element.style.transform = "translateY(8px)";
+          void element.offsetHeight;
+          element.style.transition =
+            `height ${stageMotionDurationMs}ms ${stageMotionEasing}, ` +
+            `opacity 220ms ease-out, transform ${stageMotionDurationMs}ms ${stageMotionEasing}`;
+          element.style.height = `${expandedHeight}px`;
+          element.style.opacity = "1";
+          element.style.transform = "translateY(0)";
+          const onExpandEnd = (event) => {
+            if (event.propertyName !== "height") return;
+            element.removeEventListener("transitionend", onExpandEnd);
+            clearStageMotionStyles(element);
+          };
+          element.addEventListener("transitionend", onExpandEnd);
+          return;
+        }
+
+        if (element.hidden) return;
+        const collapsedFrom = element.getBoundingClientRect().height;
+        element.style.overflow = "hidden";
+        element.style.height = `${collapsedFrom}px`;
+        element.style.opacity = "1";
+        element.style.transform = "translateY(0)";
+        void element.offsetHeight;
+        element.style.transition =
+          `height ${stageMotionDurationMs}ms ${stageMotionEasing}, ` +
+          `opacity 200ms ease-out, transform ${stageMotionDurationMs}ms ${stageMotionEasing}`;
+        element.style.height = "0px";
+        element.style.opacity = "0";
+        element.style.transform = "translateY(-8px)";
+        const onCollapseEnd = (event) => {
+          if (event.propertyName !== "height") return;
+          element.removeEventListener("transitionend", onCollapseEnd);
+          element.hidden = true;
+          clearStageMotionStyles(element);
+        };
+        element.addEventListener("transitionend", onCollapseEnd);
+      };
+
+      const finishHealthCheckRun = () => {
+        healthCard.classList.remove("is-checking");
+        setSectionVisible(actionsRow, true);
+        runHealthCheckBtn.classList.add("is-rerun");
+        runHealthCheckLabel.textContent = "Rerun health check";
+        runHealthCheckBtn.disabled = false;
+        remainingCount.hidden = true;
+        remainingSuffix.hidden = true;
+        setBadgeRunning(false);
+        if (runAttempts === 0) {
+          const successfulChecks = totalChecks - requiredAttention;
+          const successPercent = (successfulChecks / totalChecks) * 100;
+          const attentionPercent = (requiredAttention / totalChecks) * 100;
+          healthCard.classList.add("is-attention");
+          progressLabel.textContent = "All checks completed";
+          attentionStatus.hidden = attentionPercent <= 0.01;
+          successCount.textContent = String(successfulChecks);
+          attentionCount.textContent = String(requiredAttention);
+          attentionAccordionTitle.textContent = `${requiredAttention} issues require your attention`;
+          setProgressSegments(successPercent, attentionPercent);
+          setSectionVisible(attentionAccordion, attentionPercent > 0.01);
+        } else {
+          healthCard.classList.add("is-complete");
+          progressLabel.textContent = "All checks completed successfully.";
+          attentionStatus.hidden = true;
+          attentionCount.textContent = "0";
+          successCount.textContent = String(totalChecks);
+          setProgressSegments(100, 0);
+          setSectionVisible(attentionAccordion, false);
+        }
+        runAttempts += 1;
+        latestTestRun.textContent = `Last checks run: ${formatLatestTestRun(new Date())}`;
+        latestTestRun.hidden = false;
+      };
+
+      const updateResetButtonVisibility = () => {
+        resetDemoBtn.hidden = !hasRunStarted;
+      };
+
+      applyInitialUiState({ immediate: true });
+      updateResetButtonVisibility();
+
+      const setAccordionExpanded = (isExpanded) => {
+        attentionAccordionToggle.setAttribute("aria-expanded", String(isExpanded));
+        attentionAccordionPanel.setAttribute("aria-hidden", String(!isExpanded));
+        const currentHeight = attentionAccordionPanel.getBoundingClientRect().height;
+        attentionAccordionPanel.style.height = `${currentHeight}px`;
+        void attentionAccordionPanel.offsetHeight;
+        attentionAccordionPanel.style.height = isExpanded ? `${attentionAccordionPanel.scrollHeight}px` : "0px";
+      };
+
+      attentionAccordionPanel.addEventListener("transitionend", (event) => {
+        if (event.propertyName !== "height") return;
+        if (attentionAccordionToggle.getAttribute("aria-expanded") === "true") {
+          attentionAccordionPanel.style.height = "auto";
+        }
+      });
+
+      setAccordionExpanded(false);
+
+      attentionAccordionToggle.addEventListener("click", () => {
+        const isExpanded = attentionAccordionToggle.getAttribute("aria-expanded") === "true";
+        setAccordionExpanded(!isExpanded);
+      });
+
+      runHealthCheckBtn.addEventListener("click", () => {
+        hasRunStarted = true;
+        updateResetButtonVisibility();
+        healthCard.classList.add("is-checking");
+        healthCard.classList.remove("is-stopped");
+        healthCard.classList.remove("is-complete");
+        healthCard.classList.remove("is-attention");
+        setSectionVisible(actionsRow, false, { immediate: true });
+        setSectionVisible(progressPanel, true);
+        runHealthCheckBtn.disabled = true;
+        runHealthCheckBtn.classList.remove("is-rerun");
+        runHealthCheckLabel.textContent = "Checking...";
+        latestTestRun.hidden = true;
+        setBadgeRunning(true);
+        progressLabel.textContent = "Checks in progress...";
+        remainingCount.hidden = false;
+        remainingSuffix.hidden = false;
+        remainingSuffix.textContent = "remaining.";
+        attentionStatus.hidden = true;
+        attentionCount.textContent = "0";
+        setSectionVisible(attentionAccordion, false);
+        setAccordionExpanded(false);
+        completed = 2;
+        let lastRenderedCompleted = -1;
+
+        const updateProgress = (visualCompleted, discreteCompleted) => {
+          if (runAttempts === 0) {
+            const attentionVisual = Math.min(requiredAttention, (visualCompleted / totalChecks) * requiredAttention);
+            const successVisual = Math.max(0, visualCompleted - attentionVisual);
+            const successPercent = (successVisual / totalChecks) * 100;
+            const attentionPercent = (attentionVisual / totalChecks) * 100;
+            setProgressSegments(successPercent, attentionPercent);
+            if (discreteCompleted !== lastRenderedCompleted) {
+              const attentionSoFar = Math.min(requiredAttention, Math.ceil((discreteCompleted / totalChecks) * requiredAttention));
+              const successSoFar = Math.max(0, discreteCompleted - attentionSoFar);
+              successCount.textContent = String(successSoFar);
+              attentionCount.textContent = String(attentionSoFar);
+              attentionStatus.hidden = attentionPercent <= 0.01;
+            }
+          } else {
+            const successPercent = (visualCompleted / totalChecks) * 100;
+            setProgressSegments(successPercent, 0);
+            if (discreteCompleted !== lastRenderedCompleted) {
+              successCount.textContent = String(discreteCompleted);
+              attentionCount.textContent = "0";
+              attentionStatus.hidden = true;
+            }
+          }
+
+          if (discreteCompleted !== lastRenderedCompleted) {
+            progressTrack.setAttribute("aria-valuenow", String(discreteCompleted));
+            remainingCount.textContent = `${totalChecks - discreteCompleted} of ${totalChecks}`;
+            lastRenderedCompleted = discreteCompleted;
+          }
+        };
+
+        updateProgress(completed, completed);
+
+        cancelProgressAnimation();
+        const animationStartCompleted = completed;
+        const animationEndCompleted = totalChecks;
+        const animationDurationMs = (animationEndCompleted - animationStartCompleted) * checkIntervalMs;
+        let animationStartTime = null;
+        isProgressAnimating = true;
+
+        const animateProgress = (timestamp) => {
+          if (!isProgressAnimating) return;
+          if (animationStartTime === null) animationStartTime = timestamp;
+          const elapsed = timestamp - animationStartTime;
+          const t = Math.min(1, elapsed / animationDurationMs);
+          const visualCompleted = animationStartCompleted + (animationEndCompleted - animationStartCompleted) * t;
+          completed = Math.min(animationEndCompleted, Math.floor(visualCompleted));
+          updateProgress(visualCompleted, completed);
+
+          if (t < 1) {
+            progressAnimationFrame = requestAnimationFrame(animateProgress);
+            return;
+          }
+
+          cancelProgressAnimation();
+          completed = totalChecks;
+          updateProgress(totalChecks, totalChecks);
+          finishHealthCheckRun();
+        };
+
+        progressAnimationFrame = requestAnimationFrame(animateProgress);
+      });
+
+      stopHealthCheckBtn.addEventListener("click", () => {
+        if (!isProgressAnimating) return;
+        cancelProgressAnimation();
+        healthCard.classList.remove("is-checking");
+        healthCard.classList.remove("is-complete");
+        healthCard.classList.remove("is-attention");
+        healthCard.classList.add("is-stopped");
+        setSectionVisible(actionsRow, true);
+        setSectionVisible(progressPanel, true);
+        runHealthCheckBtn.classList.add("is-rerun");
+        runHealthCheckBtn.disabled = false;
+        runHealthCheckLabel.textContent = "Rerun health check";
+        setBadgeRunning(false);
+        progressLabel.textContent = "Checks stopped.";
+        remainingCount.hidden = false;
+        remainingSuffix.hidden = false;
+        remainingCount.textContent = `${completed} of ${totalChecks}`;
+        remainingSuffix.textContent = "completed.";
+        latestTestRun.textContent = `Last checks run: ${formatLatestTestRun(new Date())}`;
+        latestTestRun.hidden = false;
+
+        if (runAttempts === 0) {
+          const attentionSoFar = Math.min(requiredAttention, Math.ceil((completed / totalChecks) * requiredAttention));
+          attentionCount.textContent = String(attentionSoFar);
+          attentionStatus.hidden = attentionSoFar === 0;
+          attentionAccordionTitle.textContent = `${attentionSoFar} issues require your attention`;
+          setSectionVisible(attentionAccordion, attentionSoFar > 0);
+          if (attentionSoFar > 0) {
+            healthCard.classList.add("is-attention");
+          }
+        } else {
+          attentionStatus.hidden = true;
+          setSectionVisible(attentionAccordion, false);
+        }
+      });
+
+      resetDemoBtn.addEventListener("click", () => {
+        cancelProgressAnimation();
+
+        runAttempts = 0;
+        completed = 2;
+        hasRunStarted = false;
+        updateResetButtonVisibility();
+        applyInitialUiState({ immediate: true });
+        setAccordionExpanded(false);
+      });
+    </script>
+  </body>
+</html>
