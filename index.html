@@ -66,6 +66,13 @@
         </section>
 
         <div class="actions">
+          <div class="action-tooltip" id="runHealthCheckTooltip" role="tooltip" aria-live="polite" hidden>
+            <button type="button" class="action-tooltip-close" id="runHealthCheckTooltipCloseBtn" aria-label="Dismiss tip">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <p class="action-tooltip-title">Try now!</p>
+            <p class="action-tooltip-subcopy">Catch small issues before you submit.</p>
+          </div>
           <button type="button" id="runHealthCheckBtn">
             <img src="./Icon/Icon/General/Restore.svg" alt="" aria-hidden="true" />
             <span>Run health check</span>
@@ -153,6 +160,8 @@
     </main>
     <script>
       const runHealthCheckBtn = document.getElementById("runHealthCheckBtn");
+      const runHealthCheckTooltip = document.getElementById("runHealthCheckTooltip");
+      const runHealthCheckTooltipCloseBtn = document.getElementById("runHealthCheckTooltipCloseBtn");
       const progressPanel = document.getElementById("progressPanel");
       const successCount = document.getElementById("successCount");
       const attentionStatus = document.getElementById("attentionStatus");
@@ -183,8 +192,82 @@
       const checkIntervalMs = 80;
       const badgeDefaultIcon = "./Icon/Group.svg";
       const badgeRunningIcon = "./Gif/Lawrence Wink 110926.gif";
+      const runHealthCheckTooltipEntryDelayMs = 120;
+      const runHealthCheckTooltipExitDurationMs = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? 0
+        : 160;
       let runAttempts = 0;
       let completed = 2;
+
+      const createActionTooltipController = ({
+        tooltipEl,
+        anchorEl,
+        closeBtnEl,
+        entryDelayMs,
+        exitDurationMs,
+      }) => {
+        let showTimer = null;
+        let hideTimer = null;
+        let isDismissedForSession = false;
+
+        const cleanupTimers = () => {
+          if (showTimer !== null) {
+            window.clearTimeout(showTimer);
+            showTimer = null;
+          }
+          if (hideTimer !== null) {
+            window.clearTimeout(hideTimer);
+            hideTimer = null;
+          }
+        };
+
+        const dismiss = () => {
+          if (isDismissedForSession) return;
+          isDismissedForSession = true;
+          cleanupTimers();
+          document.removeEventListener("keydown", onEscapeDismiss);
+          anchorEl.removeAttribute("aria-describedby");
+          tooltipEl.classList.remove("is-visible");
+          tooltipEl.classList.add("is-hiding");
+
+          hideTimer = window.setTimeout(() => {
+            tooltipEl.classList.remove("is-hiding");
+            tooltipEl.hidden = true;
+            hideTimer = null;
+          }, exitDurationMs);
+        };
+
+        const onEscapeDismiss = (event) => {
+          if (event.key !== "Escape") return;
+          dismiss();
+        };
+
+        const init = () => {
+          if (hasRunStarted || isDismissedForSession) return;
+
+          showTimer = window.setTimeout(() => {
+            if (hasRunStarted || isDismissedForSession) return;
+            tooltipEl.hidden = false;
+            tooltipEl.classList.add("is-visible");
+            anchorEl.setAttribute("aria-describedby", tooltipEl.id);
+            document.addEventListener("keydown", onEscapeDismiss);
+          }, entryDelayMs);
+        };
+
+        closeBtnEl.addEventListener("click", dismiss);
+
+        return { init, dismiss };
+      };
+
+      const runHealthCheckTooltipController = createActionTooltipController({
+        tooltipEl: runHealthCheckTooltip,
+        anchorEl: runHealthCheckBtn,
+        closeBtnEl: runHealthCheckTooltipCloseBtn,
+        entryDelayMs: runHealthCheckTooltipEntryDelayMs,
+        exitDurationMs: runHealthCheckTooltipExitDurationMs,
+      });
+
+      const dismissRunHealthCheckTooltip = () => runHealthCheckTooltipController.dismiss();
 
       const formatLatestTestRun = (date) => {
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -366,6 +449,7 @@
 
       applyInitialUiState({ immediate: true });
       updateResetButtonVisibility();
+      runHealthCheckTooltipController.init();
 
       const setAccordionExpanded = (isExpanded) => {
         attentionAccordionToggle.setAttribute("aria-expanded", String(isExpanded));
@@ -391,6 +475,7 @@
       });
 
       runHealthCheckBtn.addEventListener("click", () => {
+        dismissRunHealthCheckTooltip();
         hasRunStarted = true;
         updateResetButtonVisibility();
         healthCard.classList.add("is-checking");
